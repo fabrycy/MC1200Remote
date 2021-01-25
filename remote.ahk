@@ -16,6 +16,10 @@ OnMessage(WM_INPUT, "InputMsg")
 ;Register Remote Control with RIDEV_INPUTSINK (so that data is received even in the background)
 r := AHKHID_Register(65468, 136, hGui, RIDEV_INPUTSINK)
 
+;Checking Recording Service Timer
+checksCount := 0
+SetTimer, CheckRecordingService, 60000
+
 ;Prefix loop
 Loop {
     Sleep 1000
@@ -191,3 +195,25 @@ RemoveToolTip:
 	Progress, Off
 	return
 }
+
+CheckRecordingService()
+{
+    global checksCount
+    checksCount := checksCount + 1
+ 
+    SetTimer,, 15000
+    ;OSD("Checking Recording Service...: ")
+
+    result := WinHttpRequest("http://192.168.1.55:8089/index.html")
+    if (result == -1) {
+        checksCount := 0
+    } else {     
+        if (checksCount > 4)
+        {
+            OSD("Restarting system. Recording Service is not responding.")
+            Sleep, 2000
+            Shutdown, 6
+        }
+    }
+}
+ 
