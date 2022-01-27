@@ -20,6 +20,8 @@ r := AHKHID_Register(65468, 136, hGui, RIDEV_INPUTSINK)
 checksCount := 0
 SetTimer, CheckRecordingService, 60000
 
+reloaded := 0
+
 ;Prefix loop
 Loop {
     Sleep 1000
@@ -29,10 +31,31 @@ Loop {
         sPrefix := "Kodi"
     Else 
         sPrefix := "Default"
+
+    ; Process, Exist, Launcher4Kodi.exe
+    ; LauncherPid := ErrorLevel
+    ; if (LauncherPid > 0 and reloaded = 0)
+    ; {
+    ;     Suspend, On
+    ;     Suspend, Off
+    ;     reloaded++
+    ; }
+    ; else if (LauncherPid = 0 and reloaded != 0)
+    ; {
+    ;     reloaded := 0
+    ; }
     ;StdOut(sPrefix)
 }
 
 Return
+
+^+t::
+    RunDVB()
+    Return
+
+#!Enter::
+    RunKodi()
+    Return
 
 ; AppsKey
 #If, (sPrefix = "DVB")
@@ -59,14 +82,6 @@ AppsKey::
     Return
 
 #if
-^+t::
-    RunDVB()
-    Return
-
-#!Enter::
-    RunKodi()
-    Return
-
 !=:: ; Volume UP
     Denon_VolumeUp()
     Return
@@ -174,6 +189,27 @@ Default_260: ; Start Kodi
 DVB_260: 
 Kodi_260:
     RunKodi()
+    SendInput ^+S
+Return
+
+Kodi_4100:
+    SendInput ^e
+Return
+
+Kodi_1028:
+    SendInput ^m
+Return
+
+Kodi_2052:
+    SendInput ^i
+Return
+
+Kodi_516:
+    SendInput ^t
+Return
+
+Kodi_8196:
+    SendInput ^o
 Return
 
 OSD(text)
